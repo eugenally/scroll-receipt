@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../models/receipt_data.dart';
 import '../receipt/receipt_view.dart';
 import '../services/tracker_channel.dart';
+import 'home_screen.dart';
 
 /// 플로팅 버튼을 누르면 올라오는 영수증 화면.
 class ReceiptScreen extends StatefulWidget {
@@ -76,8 +77,16 @@ class _ReceiptScreenState extends State<ReceiptScreen>
               child: IconButton(
                 icon: const Icon(Icons.close, color: Colors.white70),
                 onPressed: () => Navigator.of(context).maybePop().then((popped) {
-                  // 플로팅 버튼으로 열렸으면 앱을 내려서 인스타그램으로 복귀
-                  if (!popped) TrackerChannel.backToPreviousApp();
+                  if (popped || !context.mounted) return;
+                  // 아이폰은 앱이 스스로 인스타그램으로 돌아갈 수 없다. 🧾 로 열렸으면 홈 화면으로
+                  if (Platform.isIOS) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const HomeScreen()),
+                    );
+                  } else {
+                    // 플로팅 버튼으로 열렸으면 앱을 내려서 인스타그램으로 복귀
+                    TrackerChannel.backToPreviousApp();
+                  }
                 }),
               ),
             ),

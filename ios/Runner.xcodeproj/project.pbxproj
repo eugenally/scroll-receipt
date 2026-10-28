@@ -25,6 +25,11 @@
 		B2C0DE021F00000000000006 /* InstaOCRRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0DE021F00000000000005 /* InstaOCRRules.swift */; };
 		B2C0DE021F00000000000007 /* StatsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE011F00000000000001 /* StatsStore.swift */; };
 		B2C0DE021F0000000000000B /* ScrollBroadcast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B2C0DE021F0000000000000A /* ScrollBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C3C0DE031F00000000000002 /* ReceiptLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0DE031F00000000000001 /* ReceiptLiveActivity.swift */; };
+		C3C0DE031F00000000000004 /* ReceiptActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0DE031F00000000000003 /* ReceiptActivityAttributes.swift */; };
+		C3C0DE031F00000000000005 /* ReceiptActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0DE031F00000000000003 /* ReceiptActivityAttributes.swift */; };
+		C3C0DE031F00000000000007 /* ReceiptActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0DE031F00000000000006 /* ReceiptActivity.swift */; };
+		C3C0DE031F0000000000000A /* ReceiptWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C3C0DE031F00000000000009 /* ReceiptWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +46,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = B2C0DE021F0000000000000D;
 			remoteInfo = ScrollBroadcast;
+		};
+		C3C0DE031F00000000000011 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C3C0DE031F0000000000000D;
+			remoteInfo = ReceiptWidget;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -62,6 +74,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				B2C0DE021F0000000000000B /* ScrollBroadcast.appex in Embed Foundation Extensions */,
+				C3C0DE031F0000000000000A /* ReceiptWidget.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -97,6 +110,11 @@
 		B2C0DE021F00000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B2C0DE021F00000000000009 /* ScrollBroadcast.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScrollBroadcast.entitlements; sourceTree = "<group>"; };
 		B2C0DE021F0000000000000A /* ScrollBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScrollBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C3C0DE031F00000000000001 /* ReceiptLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptLiveActivity.swift; sourceTree = "<group>"; };
+		C3C0DE031F00000000000003 /* ReceiptActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptActivityAttributes.swift; sourceTree = "<group>"; };
+		C3C0DE031F00000000000006 /* ReceiptActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptActivity.swift; sourceTree = "<group>"; };
+		C3C0DE031F00000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C3C0DE031F00000000000009 /* ReceiptWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ReceiptWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +127,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B2C0DE021F0000000000000F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C3C0DE031F0000000000000F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -145,6 +170,8 @@
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
 				B2C0DE021F0000000000000C /* ScrollBroadcast */,
+				C3C0DE031F0000000000000B /* ReceiptWidget */,
+				C3C0DE031F0000000000000C /* Shared */,
 				331C8082294A63A400263BE5 /* RunnerTests */,
 			);
 			sourceTree = "<group>";
@@ -155,6 +182,7 @@
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
 				B2C0DE021F0000000000000A /* ScrollBroadcast.appex */,
+				C3C0DE031F00000000000009 /* ReceiptWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -174,6 +202,7 @@
 				A1C0DE011F00000000000003 /* ScrapStore.swift */,
 				A1C0DE011F00000000000005 /* TrackerChannel.swift */,
 				A1C0DE011F00000000000008 /* InstagramIntents.swift */,
+				C3C0DE031F00000000000006 /* ReceiptActivity.swift */,
 				A1C0DE011F00000000000007 /* Runner.entitlements */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
@@ -190,6 +219,23 @@
 				B2C0DE021F00000000000009 /* ScrollBroadcast.entitlements */,
 			);
 			path = ScrollBroadcast;
+			sourceTree = "<group>";
+		};
+		C3C0DE031F0000000000000B /* ReceiptWidget */ = {
+			isa = PBXGroup;
+			children = (
+				C3C0DE031F00000000000001 /* ReceiptLiveActivity.swift */,
+				C3C0DE031F00000000000008 /* Info.plist */,
+			);
+			path = ReceiptWidget;
+			sourceTree = "<group>";
+		};
+		C3C0DE031F0000000000000C /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				C3C0DE031F00000000000003 /* ReceiptActivityAttributes.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -228,6 +274,7 @@
 			);
 			dependencies = (
 				B2C0DE021F00000000000013 /* PBXTargetDependency */,
+				C3C0DE031F00000000000012 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -254,6 +301,23 @@
 			productReference = B2C0DE021F0000000000000A /* ScrollBroadcast.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		C3C0DE031F0000000000000D /* ReceiptWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C3C0DE031F00000000000013 /* Build configuration list for PBXNativeTarget "ReceiptWidget" */;
+			buildPhases = (
+				C3C0DE031F0000000000000E /* Sources */,
+				C3C0DE031F0000000000000F /* Frameworks */,
+				C3C0DE031F00000000000010 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ReceiptWidget;
+			productName = ReceiptWidget;
+			productReference = C3C0DE031F00000000000009 /* ReceiptWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -273,6 +337,9 @@
 						LastSwiftMigration = 1100;
 					};
 					B2C0DE021F0000000000000D = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					C3C0DE031F0000000000000D = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
@@ -296,6 +363,7 @@
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
 				B2C0DE021F0000000000000D /* ScrollBroadcast */,
+				C3C0DE031F0000000000000D /* ReceiptWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -320,6 +388,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B2C0DE021F00000000000010 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C3C0DE031F00000000000010 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -382,6 +457,8 @@
 				A1C0DE011F00000000000004 /* ScrapStore.swift in Sources */,
 				A1C0DE011F00000000000006 /* TrackerChannel.swift in Sources */,
 				A1C0DE011F00000000000009 /* InstagramIntents.swift in Sources */,
+				C3C0DE031F00000000000007 /* ReceiptActivity.swift in Sources */,
+				C3C0DE031F00000000000005 /* ReceiptActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,6 +470,15 @@
 				B2C0DE021F00000000000004 /* FeedAnalyzer.swift in Sources */,
 				B2C0DE021F00000000000006 /* InstaOCRRules.swift in Sources */,
 				B2C0DE021F00000000000007 /* StatsStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C3C0DE031F0000000000000E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C3C0DE031F00000000000002 /* ReceiptLiveActivity.swift in Sources */,
+				C3C0DE031F00000000000004 /* ReceiptActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -408,6 +494,11 @@
 			isa = PBXTargetDependency;
 			target = B2C0DE021F0000000000000D /* ScrollBroadcast */;
 			targetProxy = B2C0DE021F00000000000012 /* PBXContainerItemProxy */;
+		};
+		C3C0DE031F00000000000012 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C3C0DE031F0000000000000D /* ReceiptWidget */;
+			targetProxy = C3C0DE031F00000000000011 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -474,7 +565,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -602,7 +693,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -654,7 +745,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -721,7 +812,7 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScrollBroadcast/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -747,7 +838,7 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScrollBroadcast/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -771,13 +862,84 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScrollBroadcast/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.eugenally.scrollReceipt.ScrollBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Profile;
+		};
+		C3C0DE031F00000000000014 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ReceiptWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.eugenally.scrollReceipt.ReceiptWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C3C0DE031F00000000000015 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ReceiptWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.eugenally.scrollReceipt.ReceiptWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C3C0DE031F00000000000016 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ReceiptWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.eugenally.scrollReceipt.ReceiptWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -824,6 +986,16 @@
 				B2C0DE021F00000000000015 /* Debug */,
 				B2C0DE021F00000000000016 /* Release */,
 				B2C0DE021F00000000000017 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C3C0DE031F00000000000013 /* Build configuration list for PBXNativeTarget "ReceiptWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C3C0DE031F00000000000014 /* Debug */,
+				C3C0DE031F00000000000015 /* Release */,
+				C3C0DE031F00000000000016 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

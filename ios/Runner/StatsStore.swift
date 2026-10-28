@@ -63,7 +63,7 @@ final class StatsStore {
 
   /// 아이폰은 화면 방송을 켠 날에만 개수·거리를 잴 수 있다. 잰 날만 영수증에 숫자를 싣는다
   private func markFeedMeasured() { prefs.set(true, forKey: key("feedMeasured")) }
-  private func feedMeasured() -> Bool { prefs.bool(forKey: key("feedMeasured")) }
+  func feedMeasured() -> Bool { prefs.bool(forKey: key("feedMeasured")) }
 
   // ── 이용 시간: 세션 시작 시각을 저장해 두고, 끝날 때 날짜별로 누적 ──
 

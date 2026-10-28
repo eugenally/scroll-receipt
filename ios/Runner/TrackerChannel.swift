@@ -9,7 +9,15 @@ final class TrackerChannel {
   static let name = "scroll_receipt/tracker"
   static let broadcastExtension = "com.eugenally.scrollReceipt.ScrollBroadcast"
 
+  /// 🧾 Live Activity 를 눌러 앱이 열렸을 때 SceneDelegate 가 찾아 쓴다
+  private(set) static weak var shared: TrackerChannel?
+
   private let channel: FlutterMethodChannel
+
+  /// 🧾 로 열렸는데 Dart 가 아직 launchedFromBubble 을 묻지 않은 경우.
+  /// 앱이 막 켜질 때는 채널보다 주소가 먼저 올 수 있어 static 으로 둔다
+  private static var pendingReceipt = false
+  private var dartAsked = false
   private let store = StatsStore()
   private let scraps = ScrapStore()
 
@@ -19,6 +27,17 @@ final class TrackerChannel {
     channel.setMethodCallHandler { [weak self] call, result in
       guard let self else { return result(nil) }
       self.handle(call, result)
+    }
+    TrackerChannel.shared = self
+  }
+
+  /// 🧾 Live Activity 를 눌렀을 때. 앱이 막 켜졌으면 Dart 가 시작할 때 묻도록 남겨 두고,
+  /// 이미 켜져 있었으면 바로 영수증 화면을 띄우게 한다 (안드로이드 onNewIntent 와 같은 흐름)
+  static func openReceipt() {
+    if let ch = shared, ch.dartAsked {
+      ch.channel.invokeMethod("showReceipt", arguments: nil)
+    } else {
+      pendingReceipt = true
     }
   }
 
@@ -40,8 +59,10 @@ final class TrackerChannel {
       let id = ((call.arguments as? [String: Any])?["id"] as? NSNumber)?.int64Value ?? 0
       scraps.delete(id: id)
       result(nil)
-    // TODO(iOS 4단계): Live Activity 버튼으로 열렸는지
-    case "launchedFromBubble": result(false)
+    case "launchedFromBubble":
+      dartAsked = true
+      result(TrackerChannel.pendingReceipt)
+      TrackerChannel.pendingReceipt = false
     // 아이폰은 앱이 스스로 직전 앱으로 돌아갈 수 없다
     case "moveTaskToBack": result(nil)
     default: result(FlutterMethodNotImplemented)
