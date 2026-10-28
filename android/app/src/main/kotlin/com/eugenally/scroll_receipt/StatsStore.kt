@@ -89,9 +89,18 @@ class StatsStore(context: Context) {
         return prefs.getLong(key("usageMs"), 0) + live
     }
 
+    /** 첫날부터 지금까지 쌓인 이용 시간 전부 ("총 소비한 인생") */
+    fun totalUsageMs(): Long {
+        val start = prefs.getLong("sessionStart", 0)
+        val live = if (start == 0L) 0 else System.currentTimeMillis() - start
+        val stored = prefs.all.entries.sumOf { (k, v) -> if (k.endsWith(".usageMs")) v as Long else 0L }
+        return stored + live
+    }
+
     fun today(): Map<String, Any> = mapOf(
         "date" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).format(Date()),
         "usageMs" to usageMs(),
+        "totalUsageMs" to totalUsageMs(),
         "scrollMeters" to meters(),
         "friendPosts" to count("friendPosts"),
         "suggestedPosts" to count("suggestedPosts"),

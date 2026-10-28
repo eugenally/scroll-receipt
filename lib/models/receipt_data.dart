@@ -5,7 +5,12 @@
 /// null 인 항목은 영수증에서 드립 문구로 대체된다.
 class ReceiptData {
   final DateTime date;
+
+  /// 오늘 하루 이용 시간 (매일 0시에 새로 시작)
   final Duration usage;
+
+  /// 첫날부터 지금까지 쌓인 이용 시간 ("총 소비한 인생"). 모르면 null → 오늘 이용 시간으로 대신
+  final Duration? totalUsage;
   final double? scrollMeters;
   final int? friendPosts;
   final int? suggestedPosts;
@@ -16,6 +21,7 @@ class ReceiptData {
   const ReceiptData({
     required this.date,
     required this.usage,
+    this.totalUsage,
     this.scrollMeters,
     this.friendPosts,
     this.suggestedPosts,
@@ -43,6 +49,9 @@ class ReceiptData {
     return ReceiptData(
       date: DateTime.tryParse(m['date'] as String? ?? '') ?? DateTime.now(),
       usage: Duration(milliseconds: (m['usageMs'] as num?)?.toInt() ?? 0),
+      totalUsage: m['totalUsageMs'] == null
+          ? null
+          : Duration(milliseconds: (m['totalUsageMs'] as num).toInt()),
       scrollMeters: (m['scrollMeters'] as num?)?.toDouble(),
       friendPosts: (m['friendPosts'] as num?)?.toInt(),
       suggestedPosts: (m['suggestedPosts'] as num?)?.toInt(),
@@ -56,6 +65,7 @@ class ReceiptData {
   factory ReceiptData.sample() => ReceiptData(
         date: DateTime.now(),
         usage: const Duration(hours: 1, minutes: 12),
+        totalUsage: const Duration(days: 3, hours: 7, minutes: 40),
         scrollMeters: 347.2,
         friendPosts: 4,
         suggestedPosts: 61,

@@ -46,7 +46,7 @@ class ReceiptView extends StatelessWidget {
                 style: _mono.copyWith(fontSize: 12),
               ),
               _dash(),
-              _row('이용 시간', _fmtDuration(d.usage)),
+              _row('1일 이용시간', _fmtDuration(d.usage)),
               _row(
                 '스크롤 거리',
                 d.scrollMeters == null
@@ -74,7 +74,7 @@ class ReceiptView extends StatelessWidget {
               if (d.algorithmTax != null)
                 _row('알고리즘 부가세', '+${d.algorithmTax!.toStringAsFixed(0)}%'),
               _double(),
-              _row('총 소비한 인생', _fmtDuration(d.usage), bold: true),
+              _row('총 소비한 인생', _fmtDuration(d.totalUsage ?? d.usage), bold: true),
               _double(),
               const SizedBox(height: 10),
               _Barcode(seed: d.date.day * 31 + d.usage.inMinutes),
@@ -116,6 +116,7 @@ class ReceiptView extends StatelessWidget {
 
   static String _fmtDuration(Duration d) {
     final h = d.inHours, m = d.inMinutes % 60;
+    if (h >= 24) return '${h ~/ 24}일 ${h % 24}시간 $m분';
     return h > 0 ? '$h시간 $m분' : '$m분';
   }
 }

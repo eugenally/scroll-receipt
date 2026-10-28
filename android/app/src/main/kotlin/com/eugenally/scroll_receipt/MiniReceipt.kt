@@ -110,7 +110,7 @@ class MiniReceipt(
             11f, center = true,
         ))
         card.addView(dashes())
-        card.addView(row("이용 시간", "usage"))
+        card.addView(row("1일 이용시간", "usage"))
         card.addView(row("스크롤 거리", "meters"))
         card.addView(dashes())
         card.addView(item("친구 게시물", "friendPosts"))
@@ -137,20 +137,22 @@ class MiniReceipt(
             Gravity.CENTER,
         ))
 
-        // 영수증이 위에서 아래로 출력되듯 펼쳐진다
+        // 영수증이 위에서 아래로 출력되듯 펼쳐진다. 창에 붙기 전에 시작하면 애니메이션이
+        // 시작 상태(높이 0, 투명)에 멈춰 카드가 안 보일 수 있어, 붙은 뒤에 시작한다
         card.pivotY = 0f
         card.scaleY = 0f
-        card.animate().scaleY(1f).setDuration(220).start()
         dim.alpha = 0f
-        dim.animate().alpha(1f).setDuration(150).start()
+        dim.post {
+            card.animate().scaleY(1f).setDuration(220).start()
+            dim.animate().alpha(1f).setDuration(150).start()
+        }
         return dim
     }
 
     private fun bind() {
         val t = store.today()
-        val usage = t["usageMs"] as Long
-        values["usage"]?.text = fmtDuration(usage)
-        values["total"]?.text = fmtDuration(usage)
+        values["usage"]?.text = fmtDuration(t["usageMs"] as Long)
+        values["total"]?.text = fmtDuration(t["totalUsageMs"] as Long)
         values["meters"]?.text = String.format(Locale.US, "%.1fm", t["scrollMeters"] as Double)
         values["likes"]?.text = "${t["likes"]}회"
         for (k in listOf("friendPosts", "suggestedPosts", "ads", "reels")) {
@@ -220,7 +222,12 @@ class MiniReceipt(
 
     private fun fmtDuration(ms: Long): String {
         val m = ms / 60_000
-        return if (m >= 60) "${m / 60}시간 ${m % 60}분" else "${m}분"
+        val h = m / 60
+        return when {
+            h >= 24 -> "${h / 24}일 ${h % 24}시간 ${m % 60}분"
+            h > 0 -> "${h}시간 ${m % 60}분"
+            else -> "${m}분"
+        }
     }
 
     private fun dp(v: Int) = (v * density).toInt()
