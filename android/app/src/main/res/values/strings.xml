@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">스크롤 영수증</string>
+    <string name="accessibility_summary">인스타그램 위에 🧾 버튼을 띄우고 스크롤 기록을 셉니다</string>
+    <string name="accessibility_description">인스타그램을 볼 때 화면에 보이는 "광고", "추천" 표시와 스크롤 양을 세어 오늘의 영수증을 만듭니다. 화면 내용은 저장하거나 전송하지 않으며, 개수만 이 기기 안에 저장됩니다.</string>
+</resources>
