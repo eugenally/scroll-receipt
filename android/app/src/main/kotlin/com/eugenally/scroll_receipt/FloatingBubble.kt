@@ -25,17 +25,22 @@ class FloatingBubble(
     private val wm = service.getSystemService(WindowManager::class.java)
     private val density = service.resources.displayMetrics.density
     private var view: TextView? = null
+    private val size = (48 * density).toInt()
+    private val margin = (8 * density).toInt()
+
+    /** 오른쪽 가장자리에 붙어 있으면, 글자가 늘어날 때 왼쪽으로 자라도록 */
+    private var dockedRight = true
 
     private val params = WindowManager.LayoutParams(
-        (64 * density).toInt(),
-        (64 * density).toInt(),
+        WindowManager.LayoutParams.WRAP_CONTENT,
+        size,
         WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
         PixelFormat.TRANSLUCENT,
     ).apply {
         gravity = Gravity.TOP or Gravity.START
-        x = service.resources.displayMetrics.widthPixels - (72 * density).toInt()
+        x = service.resources.displayMetrics.widthPixels - size - margin
         y = (service.resources.displayMetrics.heightPixels * 0.55).toInt()
     }
 
@@ -45,11 +50,13 @@ class FloatingBubble(
         if (view != null) return
         val tv = TextView(service).apply {
             gravity = Gravity.CENTER
-            textSize = 11f
+            textSize = 13f
             setTextColor(Color.WHITE)
             text = "🧾"
+            minWidth = size
+            setPadding((14 * density).toInt(), 0, (14 * density).toInt(), 0)
             background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
+                cornerRadius = size / 2f   // 글자가 없으면 원, 있으면 알약 모양
                 setColor(Color.parseColor("#E61B1B1F"))
                 setStroke((2 * density).toInt(), Color.parseColor("#E1306C"))
             }
@@ -65,9 +72,23 @@ class FloatingBubble(
         view = null
     }
 
-    /** 버튼 안에 지금까지 스크롤한 거리를 작게 표시 */
-    fun update(meters: Double) {
-        view?.text = if (meters < 1) "🧾" else "🧾\n${meters.toInt()}m"
+    /** 버튼 안에 오늘 본 광고 수와 스크롤 거리를 실시간으로 표시 */
+    fun update(meters: Double, ads: Int) {
+        val v = view ?: return
+        val parts = buildList {
+            if (ads > 0) add("광고 $ads")
+            if (meters >= 1) add("${meters.toInt()}m")
+        }
+        val label = if (parts.isEmpty()) "🧾" else "🧾 " + parts.joinToString(" · ")
+        if (v.text == label) return
+        v.text = label
+        v.post { keepDocked(v) }
+    }
+
+    private fun keepDocked(v: TextView) {
+        if (!dockedRight || view !== v) return
+        params.x = service.resources.displayMetrics.widthPixels - v.width - margin
+        wm.updateViewLayout(v, params)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -113,8 +134,8 @@ class FloatingBubble(
     /** 놓으면 가까운 화면 가장자리로 붙는다 */
     private fun snapToEdge(v: TextView) {
         val w = service.resources.displayMetrics.widthPixels
-        val margin = (8 * density).toInt()
-        params.x = if (params.x + params.width / 2 < w / 2) margin else w - params.width - margin
+        dockedRight = params.x + v.width / 2 >= w / 2
+        params.x = if (dockedRight) w - v.width - margin else margin
         wm.updateViewLayout(v, params)
     }
 }

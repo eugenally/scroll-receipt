@@ -24,6 +24,8 @@ class StatsStore(context: Context) {
         prefs.edit().putLong(k, prefs.getLong(k, 0) + (m * 1000).toLong()).apply()
     }
 
+    fun count(name: String): Int = prefs.getInt(key(name), 0)
+
     fun meters(): Double = prefs.getLong(key("scrollMm"), 0) / 1000.0
 
     // ── 이용 시간: 세션 시작 시각을 저장해 두고, 끝날 때 누적 ──
@@ -53,11 +55,11 @@ class StatsStore(context: Context) {
         "date" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).format(Date()),
         "usageMs" to usageMs(),
         "scrollMeters" to meters(),
-        "friendPosts" to prefs.getInt(key("friendPosts"), 0),
-        "suggestedPosts" to prefs.getInt(key("suggestedPosts"), 0),
-        "ads" to prefs.getInt(key("ads"), 0),
-        "reels" to prefs.getInt(key("reels"), 0),
-        "likes" to prefs.getInt(key("likes"), 0),
+        "friendPosts" to count("friendPosts"),
+        "suggestedPosts" to count("suggestedPosts"),
+        "ads" to count("ads"),
+        "reels" to count("reels"),
+        "likes" to count("likes"),
     )
 
     fun resetToday() {

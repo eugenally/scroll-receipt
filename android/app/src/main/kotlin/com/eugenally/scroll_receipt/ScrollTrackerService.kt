@@ -19,6 +19,7 @@ class ScrollTrackerService : AccessibilityService() {
 
     private lateinit var store: StatsStore
     private lateinit var bubble: FloatingBubble
+    private lateinit var miniReceipt: MiniReceipt
     private var inInstagram = false
     private var lastScanAt = 0L
     private var lastReelAuthor: String? = null
@@ -38,7 +39,8 @@ class ScrollTrackerService : AccessibilityService() {
 
     override fun onServiceConnected() {
         store = StatsStore(this)
-        bubble = FloatingBubble(this, onTap = ::openReceipt, onLongPress = ::dumpTree)
+        miniReceipt = MiniReceipt(this, store, onOpenFull = ::openReceipt)
+        bubble = FloatingBubble(this, onTap = { miniReceipt.toggle() }, onLongPress = ::dumpTree)
         registerReceiver(screenOff, IntentFilter(Intent.ACTION_SCREEN_OFF))
         instance = this
     }
@@ -59,10 +61,14 @@ class ScrollTrackerService : AccessibilityService() {
             when {
                 pkg == InstaSelectors.PACKAGE -> enterInstagram()
                 isIgnorable(pkg) -> {}          // 상단바, 키보드 등은 무시
+                // 버튼·미니 영수증 같은 우리 오버레이 창은 인스타 위에 뜬 것. 전체 영수증 화면만 이탈로 본다
+                pkg == packageName && e.className != MainActivity::class.java.name -> {}
                 else -> leaveInstagram()        // 다른 앱 (영수증 화면 포함)
             }
         }
         if (pkg != InstaSelectors.PACKAGE) return
+        // 앱 업데이트 등으로 인스타그램이 이미 떠 있는 상태에서 연결되면 화면 전환 이벤트가 오지 않는다
+        if (!inInstagram && rootInActiveWindow?.packageName == InstaSelectors.PACKAGE) enterInstagram()
 
         when (e.eventType) {
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
@@ -86,15 +92,18 @@ class ScrollTrackerService : AccessibilityService() {
         inInstagram = true
         store.startSession()
         bubble.show()
-        bubble.update(store.meters())
+        refreshBubble()
     }
 
     private fun leaveInstagram() {
         if (!inInstagram) return
         inInstagram = false
         store.endSession()
+        if (::miniReceipt.isInitialized) miniReceipt.hide()
         if (::bubble.isInitialized) bubble.hide()
     }
+
+    private fun refreshBubble() = bubble.update(store.meters(), store.count("ads"))
 
     private fun isIgnorable(pkg: String) =
         pkg == "com.android.systemui" ||
@@ -124,7 +133,7 @@ class ScrollTrackerService : AccessibilityService() {
         val ydpi = if (dm.ydpi > 100) dm.ydpi else dm.densityDpi.toFloat()
         val meters = dy / ydpi * 0.0254    // px → inch → m
         store.addMeters(meters)
-        bubble.update(store.meters())
+        refreshBubble()
     }
 
     // ───────── 게시물 분류 ─────────
@@ -157,7 +166,10 @@ class ScrollTrackerService : AccessibilityService() {
             texts.any { t -> InstaSelectors.suggestedLabels.any { t.equals(it, true) } } -> "suggestedPosts"
             else -> "friendPosts"
         }
-        if (seen.addBounded("feed|$author|$kind")) store.add(kind)
+        if (seen.addBounded("feed|$author|$kind")) {
+            store.add(kind)
+            if (kind == "ads") refreshBubble()
+        }
     }
 
     private fun classifyReel(authorNode: AccessibilityNodeInfo) {
@@ -168,6 +180,7 @@ class ScrollTrackerService : AccessibilityService() {
         val texts = collectTexts(container, maxDepth = 4)
         val isAd = texts.any { t -> InstaSelectors.adLabels.any { t.equals(it, true) } }
         store.add(if (isAd) "ads" else "reels")
+        if (isAd) refreshBubble()
     }
 
     // ───────── 트리 유틸 ─────────
