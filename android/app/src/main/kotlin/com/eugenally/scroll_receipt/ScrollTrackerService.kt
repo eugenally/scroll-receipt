@@ -22,7 +22,11 @@ class ScrollTrackerService : AccessibilityService() {
     private lateinit var miniReceipt: MiniReceipt
     private var inInstagram = false
     private var lastScanAt = 0L
+    private var lastTouchAt = 0L
     private var lastReelAuthor: String? = null
+
+    /** seen 이 어느 날짜의 기록인지. 날이 바뀌면 비운다 */
+    private var countedDay = ""
 
     /** 이미 센 게시물 (같은 게시물을 스크롤로 오가며 여러 번 세지 않도록) */
     private val seen = object : LinkedHashSet<String>() {
@@ -39,6 +43,7 @@ class ScrollTrackerService : AccessibilityService() {
 
     override fun onServiceConnected() {
         store = StatsStore(this)
+        store.endStaleSession()
         miniReceipt = MiniReceipt(this, store, onOpenFull = ::openReceipt)
         bubble = FloatingBubble(this, onTap = { miniReceipt.toggle() }, onLongPress = ::dumpTree)
         registerReceiver(screenOff, IntentFilter(Intent.ACTION_SCREEN_OFF))
@@ -69,6 +74,7 @@ class ScrollTrackerService : AccessibilityService() {
         if (pkg != InstaSelectors.PACKAGE) return
         // 앱 업데이트 등으로 인스타그램이 이미 떠 있는 상태에서 연결되면 화면 전환 이벤트가 오지 않는다
         if (!inInstagram && rootInActiveWindow?.packageName == InstaSelectors.PACKAGE) enterInstagram()
+        if (inInstagram) keepAlive()
 
         when (e.eventType) {
             AccessibilityEvent.TYPE_VIEW_SCROLLED -> {
@@ -101,6 +107,21 @@ class ScrollTrackerService : AccessibilityService() {
         store.endSession()
         if (::miniReceipt.isInitialized) miniReceipt.hide()
         if (::bubble.isInitialized) bubble.hide()
+    }
+
+    /** 몇 초에 한 번: 마지막 활동 시각을 남기고, 날이 바뀌었으면 게시물 중복 기록을 비운다 */
+    private fun keepAlive() {
+        val now = SystemClock.uptimeMillis()
+        if (now - lastTouchAt < 5000) return
+        lastTouchAt = now
+        store.touch()
+        val day = store.dayKey()
+        if (day != countedDay) {
+            countedDay = day
+            seen.clear()
+            lastReelAuthor = null
+            refreshBubble()
+        }
     }
 
     private fun refreshBubble() = bubble.update(store.meters(), store.count("ads"))
