@@ -52,6 +52,7 @@ object InstaSelectors {
     private val uiLabels = adLabels + suggestedLabels + listOf(
         "Follow", "Following", "팔로우", "팔로잉", "Reply", "답글 달기",
         "See translation", "번역 보기", "Original audio", "원본 오디오",
+        "Reels", "릴스", "Friends", "친구",   // 릴스 화면 위쪽 탭
     )
 
     /** "좋아요 1,234개", "12.3K", "3일 전" 같은 숫자·시간 표시 */
@@ -65,17 +66,20 @@ object InstaSelectors {
 
     /**
      * 화면에 보이던 글(위→아래 순서)을 고를 수 있는 문장 조각으로 나눈다.
-     * 피드 캡션은 "작성자 본문" 형태라 앞의 작성자 이름을 떼어 낸다.
+     * 피드 캡션은 "작성자 본문", 릴스 캡션은 "작성자 said 본문" 형태라 앞부분을 떼어 낸다.
      */
-    fun scrapPieces(texts: List<String>, author: String?): List<String> = texts.asSequence()
-        .map { t -> moreLabels.fold(t.trim()) { s, m -> s.removeSuffix(m).trimEnd() } }
-        .map { if (author != null && it.startsWith("$author ")) it.removePrefix("$author ") else it }
-        .flatMap { it.split('\n').asSequence() }
-        .flatMap { it.split(sentenceEnd).asSequence() }
-        .map { it.trim() }
-        .filter { s -> s.length >= 2 && s.any(Char::isLetter) && s != author }
-        .filter { s -> uiLabels.none { s.equals(it, ignoreCase = true) } && !countOrTime.matches(s) }
-        .distinct()
-        .take(60)
-        .toList()
+    fun scrapPieces(texts: List<String>, author: String?): List<String> {
+        val authorPrefix = author?.let { Regex("""^${Regex.escape(it)}\s+(said\s+)?""") }
+        return texts.asSequence()
+            .map { t -> moreLabels.fold(t.trim()) { s, m -> s.removeSuffix(m).trimEnd() } }
+            .map { if (authorPrefix != null) it.replaceFirst(authorPrefix, "") else it }
+            .flatMap { it.split('\n').asSequence() }
+            .flatMap { it.split(sentenceEnd).asSequence() }
+            .map { it.trim() }
+            .filter { s -> s.length >= 2 && s.any(Char::isLetter) && s != author }
+            .filter { s -> uiLabels.none { s.equals(it, ignoreCase = true) } && !countOrTime.matches(s) }
+            .distinct()
+            .take(60)
+            .toList()
+    }
 }
