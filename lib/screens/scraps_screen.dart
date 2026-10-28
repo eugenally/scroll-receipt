@@ -55,6 +55,7 @@ class _ScrapsScreenState extends State<ScrapsScreen> {
                     child: Text(
                       '아직 스크랩이 없어요.\n\n'
                       '인스타그램에서 🧾 버튼 → "✂️ 보던 게시물에서 스크랩"을 누르면 '
+                      '(아이폰은 다이내믹 아일랜드의 🧾 를 길게 눌러 "✂️ 스크랩") '
                       '마음에 드는 문장을 골라 저장할 수 있어요.\n'
                       '긴 캡션은 "더 보기"로 펼친 뒤 누르세요.',
                       textAlign: TextAlign.center,

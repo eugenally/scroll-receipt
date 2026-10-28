@@ -30,6 +30,7 @@
 		C3C0DE031F00000000000005 /* ReceiptActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0DE031F00000000000003 /* ReceiptActivityAttributes.swift */; };
 		C3C0DE031F00000000000007 /* ReceiptActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0DE031F00000000000006 /* ReceiptActivity.swift */; };
 		C3C0DE031F0000000000000A /* ReceiptWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C3C0DE031F00000000000009 /* ReceiptWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B2C0DE021F00000000000020 /* ScrapStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE011F00000000000003 /* ScrapStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -470,6 +471,7 @@
 				B2C0DE021F00000000000004 /* FeedAnalyzer.swift in Sources */,
 				B2C0DE021F00000000000006 /* InstaOCRRules.swift in Sources */,
 				B2C0DE021F00000000000007 /* StatsStore.swift in Sources */,
+				B2C0DE021F00000000000020 /* ScrapStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

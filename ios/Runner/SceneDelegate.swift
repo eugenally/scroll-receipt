@@ -7,20 +7,21 @@ class SceneDelegate: FlutterSceneDelegate {
     _ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions
   ) {
     super.scene(scene, willConnectTo: session, options: connectionOptions)
-    if connectionOptions.urlContexts.contains(where: { isReceiptURL($0.url) }) {
-      TrackerChannel.openReceipt()
-    }
+    connectionOptions.urlContexts.forEach { open($0.url) }
   }
 
   /// 앱이 이미 켜져 있을 때 🧾 Live Activity 를 누른 경우
   override func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     super.scene(scene, openURLContexts: URLContexts)
-    if URLContexts.contains(where: { isReceiptURL($0.url) }) {
-      TrackerChannel.openReceipt()
-    }
+    URLContexts.forEach { open($0.url) }
   }
 
-  private func isReceiptURL(_ url: URL) -> Bool {
-    url.scheme == ReceiptActivityAttributes.receiptURL.scheme && url.host == ReceiptActivityAttributes.receiptURL.host
+  /// scrollreceipt://receipt → 영수증, scrollreceipt://scrap → 스크랩 문장 고르기
+  private func open(_ url: URL) {
+    switch url {
+    case ReceiptActivityAttributes.receiptURL: TrackerChannel.open(.receipt)
+    case ReceiptActivityAttributes.scrapURL: TrackerChannel.open(.scrap)
+    default: break
+    }
   }
 }

@@ -29,9 +29,16 @@ struct ReceiptLiveActivity: Widget {
             .foregroundStyle(.secondary)
         }
         DynamicIslandExpandedRegion(.bottom) {
-          Text("눌러서 오늘의 영수증 보기")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+          HStack {
+            Text("눌러서 오늘의 영수증 보기")
+              .foregroundStyle(.secondary)
+            Spacer()
+            // 안드로이드 미니 영수증의 ✂️ 스크랩 버튼
+            Link(destination: ReceiptActivityAttributes.scrapURL) {
+              Text("✂️ 스크랩").bold()
+            }
+          }
+          .font(.caption)
         }
       } compactLeading: {
         Text("🧾")

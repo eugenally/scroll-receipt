@@ -50,6 +50,90 @@ enum InstaOCRRules {
   /// 같은 작성자 이름이 이 거리(화면 높이 단위) 안에 다시 보이면 같은 게시물로 본다
   static let samePostDistance = 0.6
 
+  // ───────── 스크랩 ─────────
+
+  /// 접힌 캡션 끝에 붙는 "더 보기" 문구 (긴 것부터)
+  private static let moreLabels = ["… 더 보기", "... 더 보기", "… more", "... more", "...more", "더 보기", "more"]
+
+  /// 글이 아니라 버튼·표시 문구라 스크랩 후보에서 뺀다
+  private static let uiLabels = adLabels + suggestedLabels + followLabels + reelsTabLabels + [
+    "Following", "팔로잉", "Reply", "답글 달기", "See translation", "번역 보기",
+    "Original audio", "원본 오디오", "Friends", "친구",
+  ]
+
+  /// 우리 🧾 Live Activity 에 쓰인 글. 다이내믹 아일랜드가 화면에 겹쳐 찍혔을 때 뺀다
+  private static let ownLabels = ["영수증", "스크랩", "오늘 인스타그램"]
+
+  /// "좋아요 1,234개", "12.3K", "3일 전" 같은 숫자·시간 표시
+  private static let countOrTime = try! NSRegularExpression(
+    pattern: #"^(좋아요|조회수|댓글)?\s*[\d,.]+\s*(만|천|[KkMm])?\s*(개|회|명|likes?|views?|comments?)?$"#
+      + #"|^\d+\s*(초|분|시간|일|주)\s*전$|^\d+\s*(seconds?|minutes?|hours?|days?|weeks?)\s+ago$"#,
+    options: [.caseInsensitive])
+
+  private static let sentenceEnd = try! NSRegularExpression(pattern: #"(?<=[.!?。])\s+"#)
+
+  /// 위쪽 상태 표시줄·아래쪽 탭 바는 글이 아니다
+  private static let scrapY = 0.04...0.93
+
+  /// 스크랩 버튼을 누르기 직전 화면에서 읽은 글을 고를 수 있는 문장 조각과 작성자로 나눈다.
+  /// 안드로이드 InstaSelectors.scrapPieces 의 아이폰판. 문자 인식은 화면에 보이는 줄 단위라
+  /// 같은 문단으로 이어지는 줄을 먼저 합친다.
+  static func scrapPieces(_ lines: [TextLine]) -> (pieces: [String], author: String?) {
+    let visible = lines
+      .filter { scrapY.contains($0.minY) }
+      .filter { l in !ownLabels.contains { l.text.contains($0) } }
+      .sorted { ($0.minY, $0.minX) < ($1.minY, $1.minX) }
+
+    // 화면 가운데를 차지한 게시물의 작성자: 가운데보다 위에 있는 작성자 중 가장 아래 것
+    let authors = visible.filter {
+      isUsername($0.text)
+        && (headerMinX.contains($0.minX) || ($0.minY > reelAuthorMinY && $0.minX < reelAuthorMaxX))
+    }
+    let author = (authors.last { $0.minY <= 0.5 } ?? authors.first)?.text
+
+    // 왼쪽이 맞고 바로 아래에 붙은 줄은 한 문단으로 잇는다
+    var paragraphs: [String] = []
+    var last: TextLine?
+    for l in visible {
+      if let p = last, abs(l.minX - p.minX) < 0.03, l.minY - p.maxY < (p.maxY - p.minY) * 0.6 {
+        paragraphs[paragraphs.count - 1] += " " + l.text
+      } else {
+        paragraphs.append(l.text)
+      }
+      last = l
+    }
+
+    let authorPrefix = author.map { "\($0) " }
+    var out: [String] = []
+    for para in paragraphs {
+      var t = para.trimmingCharacters(in: .whitespaces)
+      for m in moreLabels where t.hasSuffix(m) {
+        t = String(t.dropLast(m.count)).trimmingCharacters(in: .whitespaces)
+      }
+      // 캡션은 "작성자 본문" 형태라 앞의 작성자 이름을 뗀다
+      if let pre = authorPrefix, t.hasPrefix(pre) { t = String(t.dropFirst(pre.count)) }
+      let ns = t as NSString
+      var start = 0
+      var parts: [String] = []
+      for m in sentenceEnd.matches(in: t, range: NSRange(location: 0, length: ns.length)) {
+        parts.append(ns.substring(with: NSRange(location: start, length: m.range.location - start)))
+        start = m.range.location + m.range.length
+      }
+      parts.append(ns.substring(from: start))
+      for piece in parts {
+        let s = piece.trimmingCharacters(in: .whitespaces)
+        guard s.count >= 2, s.contains(where: \.isLetter), s != author,
+              !matches(s, uiLabels),
+              countOrTime.firstMatch(in: s, range: NSRange(s.startIndex..., in: s)) == nil,
+              !out.contains(s)
+        else { continue }
+        out.append(s)
+        if out.count >= 60 { return (out, author) }
+      }
+    }
+    return (out, author)
+  }
+
   static func isUsername(_ s: String) -> Bool {
     username.firstMatch(in: s, range: NSRange(s.startIndex..., in: s)) != nil
   }

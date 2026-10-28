@@ -14,9 +14,12 @@ final class TrackerChannel {
 
   private let channel: FlutterMethodChannel
 
-  /// 🧾 로 열렸는데 Dart 가 아직 launchedFromBubble 을 묻지 않은 경우.
+  /// 🧾 Live Activity 에서 연 화면
+  enum Target: String { case receipt, scrap }
+
+  /// 🧾 로 열렸는데 Dart 가 아직 launchTarget 을 묻지 않은 경우.
   /// 앱이 막 켜질 때는 채널보다 주소가 먼저 올 수 있어 static 으로 둔다
-  private static var pendingReceipt = false
+  private static var pending: Target?
   private var dartAsked = false
   private let store = StatsStore()
   private let scraps = ScrapStore()
@@ -32,12 +35,14 @@ final class TrackerChannel {
   }
 
   /// 🧾 Live Activity 를 눌렀을 때. 앱이 막 켜졌으면 Dart 가 시작할 때 묻도록 남겨 두고,
-  /// 이미 켜져 있었으면 바로 영수증 화면을 띄우게 한다 (안드로이드 onNewIntent 와 같은 흐름)
-  static func openReceipt() {
+  /// 이미 켜져 있었으면 바로 그 화면을 띄우게 한다 (안드로이드 onNewIntent 와 같은 흐름)
+  static func open(_ target: Target) {
+    // 스크랩은 화면 방송 확장에게 방금 본 화면의 글을 달라고 먼저 요청한다
+    if target == .scrap { ScrapStore().requestCandidates() }
     if let ch = shared, ch.dartAsked {
-      ch.channel.invokeMethod("showReceipt", arguments: nil)
+      ch.channel.invokeMethod(target == .receipt ? "showReceipt" : "showScrapPicker", arguments: nil)
     } else {
-      pendingReceipt = true
+      pending = target
     }
   }
 
@@ -60,9 +65,23 @@ final class TrackerChannel {
       scraps.delete(id: id)
       result(nil)
     case "launchedFromBubble":
+      // 아이폰은 launchTarget 을 쓴다. 안드로이드와 같은 이름으로 묻는 경우를 위해 남겨 둔다
+      result(TrackerChannel.pending == .receipt)
+    case "launchTarget":
       dartAsked = true
-      result(TrackerChannel.pendingReceipt)
-      TrackerChannel.pendingReceipt = false
+      result(TrackerChannel.pending?.rawValue)
+      TrackerChannel.pending = nil
+    case "getScrapCandidates":
+      // 확장이 아직 답하지 않았으면 null. 방송이 꺼져 있으면 답이 오지 않으므로 그것도 알려 준다
+      var m = scraps.candidates() ?? [:]
+      m["broadcasting"] = store.isBroadcasting()
+      result(m)
+    case "addScrap":
+      let args = call.arguments as? [String: Any]
+      if let text = args?["text"] as? String {
+        scraps.add(text: text, author: args?["author"] as? String)
+      }
+      result(nil)
     // 아이폰은 앱이 스스로 직전 앱으로 돌아갈 수 없다
     case "moveTaskToBack": result(nil)
     default: result(FlutterMethodNotImplemented)

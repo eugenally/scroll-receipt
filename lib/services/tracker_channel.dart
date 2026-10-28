@@ -54,10 +54,23 @@ class TrackerChannel {
   static Future<bool> launchedFromBubble() async =>
       await _ch.invokeMethod<bool>('launchedFromBubble') ?? false;
 
-  /// 네이티브 쪽에서 "영수증 열어줘" 신호를 보낼 때 (앱이 이미 켜져 있을 때)
-  static void onShowReceipt(void Function() handler) {
+  /// (아이폰) 🧾 Live Activity 로 열렸으면 'receipt' 또는 'scrap', 아니면 null
+  static Future<String?> launchTarget() => _ch.invokeMethod<String>('launchTarget');
+
+  /// (아이폰) 화면 방송 확장이 넘겨준 스크랩 후보.
+  /// 아직 안 왔으면 pieces 가 null 이고, broadcasting 으로 방송이 켜져 있는지 알려 준다
+  static Future<Map<dynamic, dynamic>> scrapCandidates() async =>
+      await _ch.invokeMethod<Map<dynamic, dynamic>>('getScrapCandidates') ?? const {};
+
+  /// (아이폰) 고른 문장 저장. 안드로이드는 스크랩 창(ScrapSheet.kt)이 직접 저장한다
+  static Future<void> addScrap(String text, String? author) =>
+      _ch.invokeMethod('addScrap', {'text': text, 'author': author});
+
+  /// 네이티브 쪽에서 "영수증 열어줘" / (아이폰) "스크랩 문장 고르기 열어줘" 신호를 보낼 때 (앱이 이미 켜져 있을 때)
+  static void onShowReceipt(void Function() handler, {void Function()? onShowScrapPicker}) {
     _ch.setMethodCallHandler((call) async {
       if (call.method == 'showReceipt') handler();
+      if (call.method == 'showScrapPicker') onShowScrapPicker?.call();
     });
   }
 }

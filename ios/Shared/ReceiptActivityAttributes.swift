@@ -19,4 +19,7 @@ struct ReceiptActivityAttributes: ActivityAttributes {
 
   /// 🧾 를 누르면 여는 주소. 앱은 이 주소로 열리면 바로 영수증 화면을 띄운다
   static let receiptURL = URL(string: "scrollreceipt://receipt")!
+
+  /// ✂️ 스크랩을 누르면 여는 주소. 앱은 화면 방송 확장에게 방금 화면의 글을 받아 문장 고르기 화면을 띄운다
+  static let scrapURL = URL(string: "scrollreceipt://scrap")!
 }
