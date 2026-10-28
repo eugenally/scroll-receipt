@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../services/tracker_channel.dart';
@@ -63,17 +65,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         style: Theme.of(context).textTheme.titleMedium),
                   ]),
                   const SizedBox(height: 10),
-                  const Text(
-                    '인스타그램을 볼 때 화면 가장자리에 🧾 버튼이 떠요. '
-                    '누르면 그때까지의 영수증이 바로 나옵니다.\n\n'
-                    '이를 위해 접근성 권한이 필요해요. 화면에 보이는 '
-                    '"광고"·"추천" 같은 표시와 스크롤 양만 세고, '
-                    '모든 기록은 이 폰 안에만 저장되며 어디로도 전송되지 않습니다.\n\n'
-                    '미니 영수증의 ✂️ 스크랩을 누르면 보던 게시물의 문장을 골라 '
-                    '이 폰에 모아 둘 수 있어요.',
-                  ),
+                  if (Platform.isIOS)
+                    const Text(
+                      '아이폰에서는 다른 앱 위에 버튼을 띄우거나 화면을 읽을 수 없어서, '
+                      '측정 방식을 새로 만들고 있어요. 지금은 영수증 화면과 스크랩만 쓸 수 있어요.\n\n'
+                      '모든 기록은 이 폰 안에만 저장되며 어디로도 전송되지 않습니다.',
+                    )
+                  else
+                    const Text(
+                      '인스타그램을 볼 때 화면 가장자리에 🧾 버튼이 떠요. '
+                      '누르면 그때까지의 영수증이 바로 나옵니다.\n\n'
+                      '이를 위해 접근성 권한이 필요해요. 화면에 보이는 '
+                      '"광고"·"추천" 같은 표시와 스크롤 양만 세고, '
+                      '모든 기록은 이 폰 안에만 저장되며 어디로도 전송되지 않습니다.\n\n'
+                      '미니 영수증의 ✂️ 스크랩을 누르면 보던 게시물의 문장을 골라 '
+                      '이 폰에 모아 둘 수 있어요.',
+                    ),
                   const SizedBox(height: 14),
-                  if (!_enabled)
+                  if (!_enabled && !Platform.isIOS)
                     FilledButton(
                       onPressed: TrackerChannel.openAccessibilitySettings,
                       child: const Text('접근성 설정 열기 → "스크롤 영수증" 켜기'),

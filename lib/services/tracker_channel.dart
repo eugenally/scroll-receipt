@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import '../models/receipt_data.dart';
 import '../models/scrap.dart';
 
-/// 안드로이드 네이티브(접근성 서비스)와 통신하는 채널.
+/// 네이티브와 통신하는 채널. 안드로이드는 MainActivity.kt(접근성 서비스),
+/// 아이폰은 ios/Runner/TrackerChannel.swift 가 같은 메서드 이름으로 답한다.
 class TrackerChannel {
   static const _ch = MethodChannel('scroll_receipt/tracker');
 
