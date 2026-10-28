@@ -10,24 +10,31 @@ package com.eugenally.scroll_receipt
 object InstaSelectors {
     const val PACKAGE = "com.instagram.android"
 
-    /** 피드 게시물 상단의 작성자 이름 view id (끝부분만 비교) */
-    val feedAuthorIds = listOf(
-        "row_feed_photo_profile_name",
-        "row_feed_profile_header",
-    )
+    /**
+     * 피드 게시물 헤더 view id (끝부분만 비교). 게시물마다 하나씩 있고,
+     * 설명(content-desc)이 "apple posted a video October 20" 처럼 게시물마다 달라 중복 판별에 쓴다.
+     * 광고/추천 표시와 팔로우 버튼이 모두 이 안에 들어 있다.
+     */
+    val feedHeaderIds = listOf("row_feed_profile_header")
+
+    /** 헤더 안의 작성자 이름 (헤더 설명이 비어 있을 때 대신 쓴다) */
+    const val FEED_AUTHOR_ID = "row_feed_photo_profile_name"
+
+    /** 헤더 오른쪽 ⋯ 메뉴. 이게 있어야 헤더가 다 그려진 것 (그 전엔 광고/추천 표시가 빠져 있을 수 있다) */
+    const val FEED_MENU_ID = "media_option_button"
+
+    /** 팔로우하지 않은 계정의 게시물/릴스에 붙는 "팔로우" 버튼 */
+    const val FOLLOW_BUTTON_ID = "inline_follow_button"
 
     /** 릴스 화면의 작성자 이름 view id */
-    val reelAuthorIds = listOf(
-        "clips_author_username",
-        "clips_author_info_component",
-    )
+    val reelAuthorIds = listOf("clips_author_username")
 
     /** 광고 표시 문구 */
-    val adLabels = listOf("Sponsored", "광고", "Paid partnership", "유료 광고")
+    val adLabels = listOf("Ad", "Sponsored", "광고", "Paid partnership", "유료 광고")
 
     /** 팔로우하지 않은 계정 추천 표시 문구 */
     val suggestedLabels = listOf(
-        "Suggested for you", "회원님을 위한 추천", "추천 게시물", "Suggested posts", "팔로우", "Follow",
+        "Suggested for you", "회원님을 위한 추천", "추천 게시물", "Suggested posts",
     )
 
     /** 좋아요 버튼 (누르기 전 상태의 설명 문구) */

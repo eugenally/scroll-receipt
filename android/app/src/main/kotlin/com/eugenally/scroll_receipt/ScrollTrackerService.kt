@@ -28,13 +28,9 @@ class ScrollTrackerService : AccessibilityService() {
     /** seen 이 어느 날짜의 기록인지. 날이 바뀌면 비운다 */
     private var countedDay = ""
 
-    /** 이미 센 게시물 (같은 게시물을 스크롤로 오가며 여러 번 세지 않도록) */
-    private val seen = object : LinkedHashSet<String>() {
-        fun addBounded(k: String): Boolean {
-            val added = add(k)
-            if (size > 400) remove(first())
-            return added
-        }
+    /** 이미 센 게시물 → 그때 분류 (같은 게시물을 스크롤로 오가며 여러 번 세지 않도록) */
+    private val seen = object : LinkedHashMap<String, String>() {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>?) = size > 400
     }
 
     private val screenOff = object : BroadcastReceiver() {
@@ -171,35 +167,48 @@ class ScrollTrackerService : AccessibilityService() {
         walk(root, depth = 0) { node ->
             val id = node.viewIdResourceName
             when {
-                InstaSelectors.idMatches(id, InstaSelectors.feedAuthorIds) -> classifyFeedPost(node)
-                InstaSelectors.idMatches(id, InstaSelectors.reelAuthorIds) -> classifyReel(node)
+                // 미리 불러온 화면 밖 게시물·옆 릴스도 트리에 있다. 실제로 보이는 것만 센다
+                !node.isVisibleToUser -> {}
+                InstaSelectors.idMatches(id, InstaSelectors.feedHeaderIds) -> classifyFeedPost(node)
+                InstaSelectors.idMatches(id, InstaSelectors.reelAuthorIds) -> classifyReel(node, root)
             }
         }
     }
 
-    private fun classifyFeedPost(authorNode: AccessibilityNodeInfo) {
-        val author = authorNode.text?.toString() ?: authorNode.contentDescription?.toString() ?: return
-        // 작성자 이름 주변(헤더 영역)의 글자들을 모아서 광고/추천 표시를 찾는다
-        val header = authorNode.parent?.parent ?: authorNode.parent ?: return
+    /** 게시물 헤더 안의 표시만 보고 분류한다. 헤더 밖을 보면 화면의 다른 게시물 표시까지 섞인다 */
+    private fun classifyFeedPost(header: AccessibilityNodeInfo) {
+        if (findById(header, InstaSelectors.FEED_MENU_ID) == null) return   // 아직 그리는 중. 다음 스캔에서 센다
+        val post = header.contentDescription?.toString()?.trim()?.takeIf { it.isNotEmpty() }
+            ?: findById(header, InstaSelectors.FEED_AUTHOR_ID)?.text?.toString()?.trim()?.takeIf { it.isNotEmpty() }
+            ?: return
         val texts = collectTexts(header, maxDepth = 4)
         val kind = when {
             texts.any { t -> InstaSelectors.adLabels.any { t.equals(it, true) } } -> "ads"
             texts.any { t -> InstaSelectors.suggestedLabels.any { t.equals(it, true) } } -> "suggestedPosts"
+            findById(header, InstaSelectors.FOLLOW_BUTTON_ID) != null -> "suggestedPosts"
             else -> "friendPosts"
         }
-        if (seen.addBounded("feed|$author|$kind")) {
-            store.add(kind)
-            if (kind == "ads") refreshBubble()
-        }
+        val before = seen[post]
+        // 광고/추천 표시는 헤더보다 늦게 뜰 때가 있다. 친구 게시물로 셌던 것만 옮겨 센다
+        if (before == kind || (before != null && before != "friendPosts")) return
+        seen[post] = kind
+        before?.let { store.add(it, -1) }
+        store.add(kind)
+        if (kind == "ads") refreshBubble()
     }
 
-    private fun classifyReel(authorNode: AccessibilityNodeInfo) {
-        val author = authorNode.text?.toString() ?: authorNode.contentDescription?.toString() ?: return
+    private fun classifyReel(authorNode: AccessibilityNodeInfo, root: AccessibilityNodeInfo) {
+        val author = authorNode.text?.toString()?.trim()?.takeIf { it.isNotEmpty() } ?: return
         if (author == lastReelAuthor) return
         lastReelAuthor = author
-        val container = authorNode.parent?.parent ?: authorNode
-        val texts = collectTexts(container, maxDepth = 4)
-        val isAd = texts.any { t -> InstaSelectors.adLabels.any { t.equals(it, true) } }
+        // 릴스 광고 표시는 작성자 옆이 아니라 화면 아래쪽에 따로 뜬다. 지금 보이는 화면 전체에서 찾는다
+        var isAd = false
+        walk(root, depth = 0) { n ->
+            if (!isAd && n.isVisibleToUser) {
+                val t = n.text?.toString()?.trim()
+                isAd = t != null && InstaSelectors.adLabels.any { t.equals(it, true) }
+            }
+        }
         store.add(if (isAd) "ads" else "reels")
         if (isAd) refreshBubble()
     }
@@ -210,6 +219,16 @@ class ScrollTrackerService : AccessibilityService() {
         if (depth > 40) return
         f(n)
         for (i in 0 until n.childCount) n.getChild(i)?.let { walk(it, depth + 1, f) }
+    }
+
+    /** n 아래(자신 포함)에서 view id 가 ":id/$id" 로 끝나는 첫 노드 */
+    private fun findById(n: AccessibilityNodeInfo, id: String, depth: Int = 0): AccessibilityNodeInfo? {
+        if (n.viewIdResourceName?.endsWith(":id/$id") == true) return n
+        if (depth > 6) return null
+        for (i in 0 until n.childCount) {
+            n.getChild(i)?.let { c -> findById(c, id, depth + 1)?.let { return it } }
+        }
+        return null
     }
 
     private fun collectTexts(n: AccessibilityNodeInfo, maxDepth: Int): List<String> {
