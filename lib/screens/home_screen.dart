@@ -17,6 +17,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _enabled = false;
 
+  /// (아이폰) 화면 방송으로 개수·거리를 세는 중인지
+  bool _broadcasting = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,11 +40,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _check() async {
-    bool on = false;
+    bool on = false, broadcasting = false;
     try {
       on = await TrackerChannel.isServiceEnabled();
+      if (Platform.isIOS) broadcasting = await TrackerChannel.isBroadcasting();
     } catch (_) {}
-    if (mounted) setState(() => _enabled = on);
+    if (mounted) {
+      setState(() {
+        _enabled = on;
+        _broadcasting = broadcasting;
+      });
+    }
   }
 
   @override
@@ -72,7 +81,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       '단축어 앱 → 자동화 → 새로운 자동화 → 앱 → Instagram\n'
                       '1. "열릴 때" · 즉시 실행 → 동작에 "인스타그램 시작 기록"\n'
                       '2. "닫힐 때" · 즉시 실행 → 동작에 "인스타그램 종료 기록"\n\n'
-                      '광고·추천 개수와 스크롤 거리는 아직 준비 중이에요. '
+                      '광고·추천 개수와 스크롤 거리는 화면 방송을 켠 동안 셉니다. '
+                      '화면 글자를 이 폰 안에서만 읽어 "광고"·"추천" 같은 표시와 '
+                      '스크롤 양만 세고, 화면은 녹화·저장하지 않아요. '
+                      '(위 자동화가 있어야 인스타그램을 볼 때만 셉니다)\n\n'
                       '모든 기록은 이 폰 안에만 저장되며 어디로도 전송되지 않습니다.',
                     )
                   else
@@ -93,6 +105,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           ? '단축어 앱 열기 → 자동화 2개 만들기'
                           : '접근성 설정 열기 → "스크롤 영수증" 켜기'),
                     ),
+                  if (Platform.isIOS) ...[
+                    const SizedBox(height: 8),
+                    if (_broadcasting)
+                      const Text('📡 화면 방송으로 개수·거리를 세는 중이에요')
+                    else
+                      const OutlinedButton(
+                        onPressed: TrackerChannel.startBroadcast,
+                        child: Text('화면 방송 시작 → 광고·추천 개수 세기'),
+                      ),
+                  ],
                 ],
               ),
             ),

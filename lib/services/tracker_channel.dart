@@ -19,6 +19,13 @@ class TrackerChannel {
   static Future<bool> isServiceEnabled() async =>
       await _ch.invokeMethod<bool>('isServiceEnabled') ?? false;
 
+  /// (아이폰) 화면 방송 확장이 지금 프레임을 받고 있는지
+  static Future<bool> isBroadcasting() async =>
+      await _ch.invokeMethod<bool>('isBroadcasting') ?? false;
+
+  /// (아이폰) 화면 방송 시작 창 띄우기
+  static Future<void> startBroadcast() => _ch.invokeMethod('startBroadcast');
+
   /// 접근성 설정 화면 열기
   static Future<void> openAccessibilitySettings() =>
       _ch.invokeMethod('openAccessibilitySettings');

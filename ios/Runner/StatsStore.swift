@@ -79,6 +79,22 @@ final class StatsStore {
   func noteAutomation() { prefs.set(StatsStore.nowMs(), forKey: "automationAt") }
   func automationSeen() -> Bool { long("automationAt") != 0 }
 
+  /// 인스타그램이 지금 열려 있는지 (단축어 "열릴 때"~"닫힐 때" 사이)
+  func sessionOpen() -> Bool { long("sessionStart") != 0 }
+
+  // ── 화면 방송: 확장이 켜졌는지와 마지막으로 프레임을 받은 시각 ──
+  func setBroadcasting(_ on: Bool) {
+    prefs.set(on, forKey: "broadcasting")
+    heartbeat()
+  }
+
+  func heartbeat() { prefs.set(StatsStore.nowMs(), forKey: "broadcastAt") }
+
+  /// 확장이 죽으면 꺼짐 표시를 못 남기므로, 최근 10초 안에 프레임을 받았는지도 본다
+  func isBroadcasting() -> Bool {
+    prefs.bool(forKey: "broadcasting") && StatsStore.nowMs() - long("broadcastAt") < 10_000
+  }
+
   func startSession() {
     // 이전 세션이 끝나지 않은 채 최대 길이를 넘겼으면 닫고 새로 시작한다
     let open = long("sessionStart")
@@ -149,7 +165,8 @@ final class StatsStore {
       "suggestedPosts": ifMeasured(count("suggestedPosts")),
       "ads": ifMeasured(count("ads")),
       "reels": ifMeasured(count("reels")),
-      "likes": ifMeasured(count("likes")),
+      // 화면만 보는 아이폰은 좋아요 누른 걸 알 수 없다
+      "likes": NSNull(),
     ]
   }
 

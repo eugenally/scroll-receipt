@@ -1,10 +1,13 @@
 import Flutter
+import ReplayKit
 import UIKit
 
 /// Dart 의 TrackerChannel 과 통신하는 채널. 안드로이드 MainActivity.kt 와 같은 메서드 이름을 쓴다.
-/// 아이폰은 단축어 자동화로 이용 시간만 잰다. "측정 중"은 그 자동화가 돌았는지로 본다.
+/// 아이폰은 단축어 자동화로 이용 시간을, 화면 방송 확장(ScrollBroadcast)으로 개수·거리를 잰다.
+/// "측정 중"은 단축어 자동화가 돌았는지로 본다.
 final class TrackerChannel {
   static let name = "scroll_receipt/tracker"
+  static let broadcastExtension = "com.eugenally.scrollReceipt.ScrollBroadcast"
 
   private let channel: FlutterMethodChannel
   private let store = StatsStore()
@@ -29,6 +32,8 @@ final class TrackerChannel {
         UIApplication.shared.open(url)
       }
       result(nil)
+    case "isBroadcasting": result(store.isBroadcasting())
+    case "startBroadcast": showBroadcastPicker(); result(nil)
     case "resetToday": store.resetToday(); result(nil)
     case "getScraps": result(scraps.all())
     case "deleteScrap":
@@ -41,5 +46,22 @@ final class TrackerChannel {
     case "moveTaskToBack": result(nil)
     default: result(FlutterMethodNotImplemented)
     }
+  }
+
+  /// 화면 방송은 사용자가 시스템 창에서 직접 시작해야 한다.
+  /// 시스템 방송 버튼을 화면에 잠깐 붙여 눌러서, 우리 확장이 골라진 "방송 시작" 창을 띄운다
+  private func showBroadcastPicker() {
+    let window = UIApplication.shared.connectedScenes
+      .compactMap { ($0 as? UIWindowScene)?.keyWindow }
+      .first
+    let picker = RPSystemBroadcastPickerView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
+    picker.preferredExtension = TrackerChannel.broadcastExtension
+    picker.showsMicrophoneButton = false
+    picker.alpha = 0.01   // 숨기면(isHidden) 눌리지 않는 경우가 있다
+    window?.addSubview(picker)
+    for case let button as UIButton in picker.subviews {
+      button.sendActions(for: .allTouchEvents)
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { picker.removeFromSuperview() }
   }
 }
