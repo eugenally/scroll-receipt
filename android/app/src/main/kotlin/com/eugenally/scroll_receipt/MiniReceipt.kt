@@ -27,11 +27,13 @@ import java.util.Locale
  * 🧾 버튼을 누르면 인스타그램 위에 바로 펼쳐지는 작은 영수증.
  * 앱을 전환하지 않으므로 인스타그램 세션이 끊기지 않는다.
  * 바깥을 누르면 닫히고, "전체 영수증"을 누르면 공유용 전체 화면을 연다.
+ * "스크랩"을 누르면 닫히면서 지금 보던 게시물의 글을 고르는 창이 뜬다.
  */
 class MiniReceipt(
     private val service: AccessibilityService,
     private val store: StatsStore,
     private val onOpenFull: () -> Unit,
+    private val onScrap: () -> Unit,
 ) {
     private val wm = service.getSystemService(WindowManager::class.java)
     private val density = service.resources.displayMetrics.density
@@ -131,6 +133,10 @@ class MiniReceipt(
 
         column.addView(card, LinearLayout.LayoutParams(dp(300), LinearLayout.LayoutParams.WRAP_CONTENT))
         column.addView(buttons, LinearLayout.LayoutParams(dp(300), LinearLayout.LayoutParams.WRAP_CONTENT))
+        column.addView(
+            button("✂️ 보던 게시물에서 스크랩", filled = false) { hide(); onScrap() },
+            LinearLayout.LayoutParams(dp(300), LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) },
+        )
         dim.addView(column, FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT,
             FrameLayout.LayoutParams.WRAP_CONTENT,

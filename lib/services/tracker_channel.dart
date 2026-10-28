@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 
 import '../models/receipt_data.dart';
+import '../models/scrap.dart';
 
 /// 안드로이드 네이티브(접근성 서비스)와 통신하는 채널.
 class TrackerChannel {
@@ -20,6 +21,16 @@ class TrackerChannel {
   /// 접근성 설정 화면 열기
   static Future<void> openAccessibilitySettings() =>
       _ch.invokeMethod('openAccessibilitySettings');
+
+  /// 저장한 스크랩 (최근 것부터)
+  static Future<List<Scrap>> scraps() async {
+    final list = await _ch.invokeMethod<List<dynamic>>('getScraps') ?? const [];
+    return list.map((m) => Scrap.fromMap(m as Map<dynamic, dynamic>)).toList();
+  }
+
+  /// 스크랩 하나 지우기
+  static Future<void> deleteScrap(int id) =>
+      _ch.invokeMethod('deleteScrap', {'id': id});
 
   /// 오늘 기록 초기화 (테스트용)
   static Future<void> resetToday() => _ch.invokeMethod('resetToday');

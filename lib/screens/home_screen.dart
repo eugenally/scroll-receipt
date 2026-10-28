@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/tracker_channel.dart';
 import 'receipt_screen.dart';
+import 'scraps_screen.dart';
 
 /// 처음 앱을 열었을 때: 접근성 권한 안내 + 영수증 미리보기.
 class HomeScreen extends StatefulWidget {
@@ -67,7 +68,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     '누르면 그때까지의 영수증이 바로 나옵니다.\n\n'
                     '이를 위해 접근성 권한이 필요해요. 화면에 보이는 '
                     '"광고"·"추천" 같은 표시와 스크롤 양만 세고, '
-                    '모든 기록은 이 폰 안에만 저장되며 어디로도 전송되지 않습니다.',
+                    '모든 기록은 이 폰 안에만 저장되며 어디로도 전송되지 않습니다.\n\n'
+                    '미니 영수증의 ✂️ 스크랩을 누르면 보던 게시물의 문장을 골라 '
+                    '이 폰에 모아 둘 수 있어요.',
                   ),
                   const SizedBox(height: 14),
                   if (!_enabled)
@@ -86,6 +89,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ReceiptScreen()),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.content_cut),
+            title: const Text('내 스크랩'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ScrapsScreen()),
             ),
           ),
           ListTile(

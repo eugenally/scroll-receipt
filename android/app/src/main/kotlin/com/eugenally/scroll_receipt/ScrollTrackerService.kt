@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Rect
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
@@ -20,6 +21,7 @@ class ScrollTrackerService : AccessibilityService() {
     private lateinit var store: StatsStore
     private lateinit var bubble: FloatingBubble
     private lateinit var miniReceipt: MiniReceipt
+    private lateinit var scrapSheet: ScrapSheet
     private var inInstagram = false
     private var lastScanAt = 0L
     private var lastTouchAt = 0L
@@ -40,7 +42,8 @@ class ScrollTrackerService : AccessibilityService() {
     override fun onServiceConnected() {
         store = StatsStore(this)
         store.endStaleSession()
-        miniReceipt = MiniReceipt(this, store, onOpenFull = ::openReceipt)
+        miniReceipt = MiniReceipt(this, store, onOpenFull = ::openReceipt, onScrap = ::openScrap)
+        scrapSheet = ScrapSheet(this, ScrapStore(this))
         bubble = FloatingBubble(this, onTap = { miniReceipt.toggle() }, onLongPress = ::dumpTree)
         registerReceiver(screenOff, IntentFilter(Intent.ACTION_SCREEN_OFF))
         instance = this
@@ -102,6 +105,7 @@ class ScrollTrackerService : AccessibilityService() {
         inInstagram = false
         store.endSession()
         if (::miniReceipt.isInitialized) miniReceipt.hide()
+        if (::scrapSheet.isInitialized) scrapSheet.hide()
         if (::bubble.isInitialized) bubble.hide()
     }
 
@@ -211,6 +215,38 @@ class ScrollTrackerService : AccessibilityService() {
         }
         store.add(if (isAd) "ads" else "reels")
         if (isAd) refreshBubble()
+    }
+
+    // ───────── 스크랩 ─────────
+
+    /**
+     * 미니 영수증의 스크랩 버튼을 누른 순간 화면에 보이던 글을 모아 스크랩 창을 띄운다.
+     * 사용자가 누를 때 한 번만 읽고, 사용자가 고른 문장만 폰에 저장한다.
+     */
+    private fun openScrap() {
+        val root = rootInActiveWindow
+        if (root?.packageName != InstaSelectors.PACKAGE) {
+            android.widget.Toast.makeText(this, "인스타그램 화면에서 눌러 주세요", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+        val mid = resources.displayMetrics.heightPixels / 2
+        val texts = mutableListOf<Pair<Rect, String>>()
+        val authors = mutableListOf<Pair<Int, String>>()
+        walk(root, depth = 0) { n ->
+            if (!n.isVisibleToUser || n.isEditable) return@walk   // 댓글 입력칸은 뺀다
+            val t = n.text?.toString()?.trim()?.takeIf { it.isNotEmpty() } ?: return@walk
+            val r = Rect().also(n::getBoundsInScreen)
+            texts += r to t
+            val id = n.viewIdResourceName
+            if (id?.endsWith(":id/${InstaSelectors.FEED_AUTHOR_ID}") == true ||
+                InstaSelectors.idMatches(id, InstaSelectors.reelAuthorIds)
+            ) authors += r.top to t
+        }
+        // 화면 가운데를 차지한 게시물의 작성자: 가운데보다 위에 있는 작성자 중 가장 아래 것
+        val author = authors.filter { it.first <= mid }.maxByOrNull { it.first }?.second
+            ?: authors.minByOrNull { it.first }?.second
+        val ordered = texts.sortedWith(compareBy({ it.first.top }, { it.first.left })).map { it.second }
+        scrapSheet.show(InstaSelectors.scrapPieces(ordered, author), author)
     }
 
     // ───────── 트리 유틸 ─────────

@@ -14,6 +14,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val store = StatsStore(this)
+        val scraps = ScrapStore(this)
 
         channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).apply {
             setMethodCallHandler { call, result ->
@@ -26,6 +27,11 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     }
                     "resetToday" -> { store.resetToday(); result.success(null) }
+                    "getScraps" -> result.success(scraps.all())
+                    "deleteScrap" -> {
+                        scraps.delete((call.argument<Number>("id") ?: 0).toLong())
+                        result.success(null)
+                    }
                     "launchedFromBubble" -> {
                         val from = intent?.getBooleanExtra(EXTRA_FROM_BUBBLE, false) ?: false
                         intent?.removeExtra(EXTRA_FROM_BUBBLE)
