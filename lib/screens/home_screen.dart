@@ -67,8 +67,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(height: 10),
                   if (Platform.isIOS)
                     const Text(
-                      '아이폰에서는 다른 앱 위에 버튼을 띄우거나 화면을 읽을 수 없어서, '
-                      '측정 방식을 새로 만들고 있어요. 지금은 영수증 화면과 스크랩만 쓸 수 있어요.\n\n'
+                      '아이폰은 다른 앱이 켜졌는지 알 수 없어서, 단축어 자동화로 '
+                      '인스타그램 이용 시간을 재요.\n\n'
+                      '단축어 앱 → 자동화 → 새로운 자동화 → 앱 → Instagram\n'
+                      '1. "열릴 때" · 즉시 실행 → 동작에 "인스타그램 시작 기록"\n'
+                      '2. "닫힐 때" · 즉시 실행 → 동작에 "인스타그램 종료 기록"\n\n'
+                      '광고·추천 개수와 스크롤 거리는 아직 준비 중이에요. '
                       '모든 기록은 이 폰 안에만 저장되며 어디로도 전송되지 않습니다.',
                     )
                   else
@@ -82,10 +86,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       '이 폰에 모아 둘 수 있어요.',
                     ),
                   const SizedBox(height: 14),
-                  if (!_enabled && !Platform.isIOS)
+                  if (!_enabled)
                     FilledButton(
                       onPressed: TrackerChannel.openAccessibilitySettings,
-                      child: const Text('접근성 설정 열기 → "스크롤 영수증" 켜기'),
+                      child: Text(Platform.isIOS
+                          ? '단축어 앱 열기 → 자동화 2개 만들기'
+                          : '접근성 설정 열기 → "스크롤 영수증" 켜기'),
                     ),
                 ],
               ),

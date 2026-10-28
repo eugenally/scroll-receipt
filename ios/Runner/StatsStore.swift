@@ -66,7 +66,23 @@ final class StatsStore {
   private func feedMeasured() -> Bool { prefs.bool(forKey: key("feedMeasured")) }
 
   // ── 이용 시간: 세션 시작 시각을 저장해 두고, 끝날 때 날짜별로 누적 ──
+
+  /// 단축어 "닫힐 때" 자동화가 빠지면 세션이 끝나지 않는다. 한 세션은 이 길이까지만 센다
+  static let maxSessionMs: Int64 = 3 * 60 * 60 * 1000
+
+  /// 세션이 실제로 끝났다고 볼 시각 (지금, 또는 최대 길이에서 자른 시각)
+  private func cappedEnd(_ start: Int64, _ end: Int64) -> Int64 {
+    min(end, start + StatsStore.maxSessionMs)
+  }
+
+  /// 단축어 자동화가 한 번이라도 돌았는지 (홈 화면 "측정 중" 표시용)
+  func noteAutomation() { prefs.set(StatsStore.nowMs(), forKey: "automationAt") }
+  func automationSeen() -> Bool { long("automationAt") != 0 }
+
   func startSession() {
+    // 이전 세션이 끝나지 않은 채 최대 길이를 넘겼으면 닫고 새로 시작한다
+    let open = long("sessionStart")
+    if open != 0 && StatsStore.nowMs() >= open + StatsStore.maxSessionMs { endSession() }
     if long("sessionStart") == 0 {
       let now = StatsStore.nowMs()
       prefs.set(now, forKey: "sessionStart")
@@ -83,6 +99,7 @@ final class StatsStore {
   func endSession(end: Int64 = StatsStore.nowMs()) {
     var start = long("sessionStart")
     if start == 0 { return }
+    let end = cappedEnd(start, end)
     while start < end {
       let cut = min(nextMidnight(start), end)
       let k = "\(dayStr(start)).usageMs"
@@ -104,14 +121,14 @@ final class StatsStore {
     let start = long("sessionStart")
     let now = StatsStore.nowMs()
     // 진행 중인 세션은 오늘 0시 이후 부분만 오늘 이용 시간에 더한다
-    let live = start == 0 ? 0 : now - max(start, startOfDay(now))
+    let live = start == 0 ? 0 : max(0, cappedEnd(start, now) - max(start, startOfDay(now)))
     return long(key("usageMs")) + live
   }
 
   /// 첫날부터 지금까지 쌓인 이용 시간 전부 ("총 소비한 인생")
   func totalUsageMs() -> Int64 {
     let start = long("sessionStart")
-    let live = start == 0 ? 0 : StatsStore.nowMs() - start
+    let live = start == 0 ? 0 : cappedEnd(start, StatsStore.nowMs()) - start
     let stored = prefs.dictionaryRepresentation()
       .filter { $0.key.hasSuffix(".usageMs") }
       .reduce(Int64(0)) { $0 + (($1.value as? NSNumber)?.int64Value ?? 0) }

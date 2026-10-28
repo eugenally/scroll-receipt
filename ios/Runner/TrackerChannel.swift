@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 
 /// Dart 의 TrackerChannel 과 통신하는 채널. 안드로이드 MainActivity.kt 와 같은 메서드 이름을 쓴다.
-/// 아이폰은 아직 측정 수단이 없어서 측정 관련 메서드는 "꺼져 있음"으로 답한다.
+/// 아이폰은 단축어 자동화로 이용 시간만 잰다. "측정 중"은 그 자동화가 돌았는지로 본다.
 final class TrackerChannel {
   static let name = "scroll_receipt/tracker"
 
@@ -12,7 +12,7 @@ final class TrackerChannel {
 
   init(messenger: FlutterBinaryMessenger) {
     channel = FlutterMethodChannel(name: TrackerChannel.name, binaryMessenger: messenger)
-    store.endStaleSession()
+    // 단축어 동작을 실행하려고 앱이 뒤에서 켜질 때도 여기를 지나므로, 진행 중인 세션을 끝내지 않는다
     channel.setMethodCallHandler { [weak self] call, result in
       guard let self else { return result(nil) }
       self.handle(call, result)
@@ -22,11 +22,10 @@ final class TrackerChannel {
   private func handle(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
     switch call.method {
     case "getToday": result(store.today())
-    // TODO(iOS 2·3단계): 단축어 자동화 / 화면 방송이 켜져 있는지로 바꾼다
-    case "isServiceEnabled": result(false)
+    case "isServiceEnabled": result(store.automationSeen())
     case "openAccessibilitySettings":
-      // 아이폰엔 접근성 서비스가 없다. 우선 이 앱의 설정 화면을 연다
-      if let url = URL(string: UIApplication.openSettingsURLString) {
+      // 아이폰엔 접근성 서비스가 없다. 대신 자동화를 만들 단축어 앱을 연다
+      if let url = URL(string: "shortcuts://") {
         UIApplication.shared.open(url)
       }
       result(nil)

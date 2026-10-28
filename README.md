@@ -21,7 +21,7 @@
 ```
 
 - 모든 기록은 **폰 안에만** 저장되고 어디로도 전송되지 않습니다.
-- 현재는 **Android** 버전. iOS는 뼈대만 있고 측정 기능은 준비 중 (아래 [아이폰](#아이폰-준비-중) 참고)
+- 현재는 **Android** 버전. iOS는 이용 시간만 재고 나머지 측정은 준비 중 (아래 [아이폰](#아이폰-준비-중) 참고)
 
 ## 동작 방식
 
@@ -62,11 +62,12 @@ flutter run        # USB 디버깅을 켠 안드로이드 폰 연결
 ## 아이폰 (준비 중)
 
 아이폰은 다른 앱의 화면을 읽거나 그 위에 버튼을 띄울 수 없어서, 측정 방식을 새로 만들고 있습니다.
-지금은 영수증 화면·스크랩만 동작하고, 측정 전이라 숫자는 0 또는 드립 문구로 나옵니다.
+지금은 **이용 시간**만 단축어 자동화로 재고, 광고·추천 개수와 스크롤 거리는 드립 문구로 나옵니다.
 
 | 부분 | 파일 | 역할 |
 |---|---|---|
 | 채널 | `ios/Runner/TrackerChannel.swift` | 안드로이드 `MainActivity.kt`와 같은 메서드 이름으로 Dart에 답한다 |
+| 이용 시간 | `ios/Runner/InstagramIntents.swift` | 단축어 동작 "인스타그램 시작 기록" / "인스타그램 종료 기록" |
 | 저장 | `ios/Runner/StatsStore.swift`, `ScrapStore.swift` | 안드로이드와 같은 키 형식. App Group(`group.com.eugenally.scrollReceipt`) 공유 저장소 |
 
 실행하려면 Mac + Xcode가 필요합니다.
@@ -77,7 +78,16 @@ open ios/Runner.xcworkspace
 ```
 
 Xcode에서 Runner 타깃 → Signing & Capabilities → 팀을 고르고, App Groups에
-`group.com.eugenally.scrollReceipt`가 체크돼 있는지 확인한 뒤 실기기로 `flutter run` 하세요.
+`group.com.eugenally.scrollReceipt`가 체크돼 있는지 확인한 뒤 실기기로 `flutter run` 하세요. (iOS 16 이상)
+
+### 아이폰에서 설정 (이용 시간)
+
+단축어 앱 → 자동화 → 새로운 자동화 → 앱 → Instagram 에서 두 개를 만듭니다.
+
+1. **열릴 때** · 즉시 실행 → 동작 추가 → "인스타그램 시작 기록"
+2. **닫힐 때** · 즉시 실행 → 동작 추가 → "인스타그램 종료 기록"
+
+"닫힐 때" 자동화가 빠져도 시간이 끝없이 쌓이지 않도록, 한 세션은 최대 3시간까지만 셉니다.
 
 ## 숫자가 이상할 때 (판별 기준 조정)
 
@@ -93,7 +103,7 @@ Xcode에서 Runner 타깃 → Signing & Capabilities → 팀을 고르고, App G
 - [ ] 주간/월간 누적 영수증
 - [ ] 레딧 앱 지원
 - [x] iOS 1단계: 뼈대 + 같은 채널의 Swift 구현 + App Group 저장소
-- [ ] iOS 2단계: 단축어 자동화로 이용 시간 기록
+- [x] iOS 2단계: 단축어 자동화로 이용 시간 기록
 - [ ] iOS 3단계: 화면 방송(ReplayKit) + 문자 인식으로 광고·추천·릴스·스크롤 거리 측정
 - [ ] iOS 4단계: 다이내믹 아일랜드(Live Activity)로 🧾 버튼 대체
 - [ ] iOS 5단계: 문자 인식 결과로 스크랩

@@ -19,6 +19,7 @@
 		A1C0DE011F00000000000002 /* StatsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE011F00000000000001 /* StatsStore.swift */; };
 		A1C0DE011F00000000000004 /* ScrapStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE011F00000000000003 /* ScrapStore.swift */; };
 		A1C0DE011F00000000000006 /* TrackerChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE011F00000000000005 /* TrackerChannel.swift */; };
+		A1C0DE011F00000000000009 /* InstagramIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE011F00000000000008 /* InstagramIntents.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +67,7 @@
 		A1C0DE011F00000000000003 /* ScrapStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrapStore.swift; sourceTree = "<group>"; };
 		A1C0DE011F00000000000005 /* TrackerChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerChannel.swift; sourceTree = "<group>"; };
 		A1C0DE011F00000000000007 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		A1C0DE011F00000000000008 /* InstagramIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramIntents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +135,7 @@
 				A1C0DE011F00000000000001 /* StatsStore.swift */,
 				A1C0DE011F00000000000003 /* ScrapStore.swift */,
 				A1C0DE011F00000000000005 /* TrackerChannel.swift */,
+				A1C0DE011F00000000000008 /* InstagramIntents.swift */,
 				A1C0DE011F00000000000007 /* Runner.entitlements */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
@@ -298,6 +301,7 @@
 				A1C0DE011F00000000000002 /* StatsStore.swift in Sources */,
 				A1C0DE011F00000000000004 /* ScrapStore.swift in Sources */,
 				A1C0DE011F00000000000006 /* TrackerChannel.swift in Sources */,
+				A1C0DE011F00000000000009 /* InstagramIntents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,7 +378,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -502,7 +506,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -554,7 +558,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
